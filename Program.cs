@@ -187,7 +187,11 @@ static string GetLibVersion()
 {
     AssemblyInformationalVersionAttribute? attribute =
         typeof(JSchema).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-    return attribute!.InformationalVersion;
+    var version = attribute!.InformationalVersion;
+    // Strip any SemVer build metadata ("+<git-sha>"): Bowtie derives the
+    // published image tag from this, and "+" is not a valid tag character.
+    var plus = version.IndexOf("+", StringComparison.Ordinal);
+    return plus < 0 ? version : version[..plus];
 }
 
 internal interface ICommandSource
