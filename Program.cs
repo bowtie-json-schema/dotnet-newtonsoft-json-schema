@@ -79,6 +79,18 @@ while (cmdSource.GetNextCommand() is { } line && line != string.Empty)
                 throw new CannotRunBeforeDialectIsChosen();
             }
 
+            string output = root["output"]?.GetValue<string>() ?? "flag";
+            if (output != "flag")
+            {
+                var skipOutputResult = new JsonObject {
+                    ["seq"] = root["seq"]?.DeepClone(),
+                    ["skipped"] = true,
+                    ["message"] = $"Unsupported output format: {output}",
+                };
+                Console.WriteLine(skipOutputResult.ToJsonString());
+                break;
+            }
+
             JsonNode? testCase = root["case"] ?? throw new MissingCase(root);
             string? nullableTestCaseDescription = testCase["description"]?.GetValue<string>();
 
